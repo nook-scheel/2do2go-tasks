@@ -1,0 +1,67 @@
+extends layout
+
+block content
+  h1 Reddit to CSV or SQL
+  .wrap(ng-controller='FormController as vm')
+    form(name='form', novalidate='')
+      .form-group(ng-class='{ "has-focus": form.url.hasFocus, "has-success": form.url.$valid, "has-error": form.url.$invalid && (form.$submitted || form.url.$touched), "is-empty": !form.url.$viewValue }')
+        label(for='url') Enter a URL
+        input(type='text', name='url', ng-model='reddit.url', required='', ng-focus='form.url.hasFocus=true', ng-blur='form.url.hasFocus=false')
+        p.error-block(ng-show='form.url.$error.required && (form.url.$touched || submitted)') URL is Required!
+      .radio-buttons
+        h3 Todo
+        .form-group-radio
+          input.radio#task-number-1(type="radio" ng-model="reddit.taskNumber" value="1")
+          label(for="task-number-1") Task 1
+        .form-group-radio
+          input.radio#task-number-2(type="radio" ng-model="reddit.taskNumber" value="2" ng-change="reddit.type = 'csv'; reddit.sortPath = 'count'; reddit.sort = 'asc'")
+          label(for="task-number-2") Task 2
+      .radio-buttons
+        h3 Format
+        .form-group-radio(ng-if="reddit.taskNumber !== '2'")
+          input.radio#CSV(type="radio" ng-model="reddit.type" value="csv")
+          label(for="CSV") CSV
+        .form-group-radio(ng-if="reddit.taskNumber !== '2'")
+          input.radio#SQL(type="radio" ng-model="reddit.type" value="sql")
+          label(for="SQL") SQL
+        .form-group(style="width: 200px;" ng-class='{ "has-focus": form.special.hasFocus, "has-success": form.special.$valid, "has-error": form.special.$invalid && (form.$submitted || form.special.$touched), "is-empty": !form.special.$viewValue }')
+          label(for='special' ng-if="reddit.type === 'csv'") Enter a delimiter
+          label(for='tableName' ng-if="reddit.type === 'sql'") Enter a table name
+          input(type='text', name='special', ng-model='reddit.special', required='', ng-focus='form.special.hasFocus=true', ng-blur='form.special.hasFocus=false')
+          p.error-block(ng-if="reddit.type === 'csv'" ng-show='form.special.$error.required && (form.special.$touched || submitted)') Delimiter is Required!
+          p.error-block(ng-if="reddit.type === 'sql'" ng-show='form.tableName.$error.required && (form.tableName.$touched || submitted)') Table name is Required!
+      .radio-buttons(ng-if="reddit.taskNumber !== '2'")
+        h3 Sort
+        .form-group-radio
+          input.radio#ASC(type="radio" ng-model="reddit.sort" value="asc")
+          label(for="ASC") ASC
+        .form-group-radio
+          input.radio#DESC(type="radio" ng-model="reddit.sort" value="desc")
+          label(for="DESC") DESC
+        .form-group(style="width: 200px;" ng-class='{ "has-focus": form.sortPath.hasFocus, "has-success": form.sortPath.$valid, "has-error": form.sortPath.$invalid && (form.$submitted || form.sortPath.$touched), "is-empty": !form.sortPath.$viewValue }')
+          label(for='sortPath') Enter a sort field
+          input(type='text', name='sortPath', ng-model='reddit.sortPath', required='', ng-focus='form.sortPath.hasFocus=true', ng-blur='form.sortPath.hasFocus=false')
+          p.error-block(ng-show='form.sortPath.$error.required && (form.sortPath.$touched || submitted)') Sort path is Required!
+      h3(ng-if="reddit.taskNumber !== '2'")
+        |Fields 
+        a(href ng-click="vm.add()") add
+      .fields(ng-if="reddit.taskNumber !== '2'" style="display: flex;" ng-repeat="field in reddit.fields")
+        .form-group(style="width: 100px;" ng-class='{ "has-focus": form["path"+$index].hasFocus, "has-success": form["path"+$index].$valid, "is-empty": !form["path"+$index].$viewValue }')
+          label(for='path{{$index}}') Enter a path
+          input(type='text', name='path{{$index}}', ng-model='field.path', required='', ng-focus='form["path"+$index].hasFocus=true', ng-blur='form["path"+$index].hasFocus=false')
+
+        .form-group(style="width: 100px;" ng-class='{ "has-focus": form["name"+$index].hasFocus, "has-success": form["name"+$index].$valid, "is-empty": !form["name"+$index].$viewValue }')
+          label(for='name{{$index}}') Enter a name
+          input(type='text', name='name{{$index}}', ng-model='field.name', required='', ng-focus='form["name"+$index].hasFocus=true', ng-blur='form["name"+$index].hasFocus=false')
+
+        .form-group(style="width: 100px;" ng-if="reddit.type === 'sql'" ng-class='{ "has-focus": form["type"+$index].hasFocus, "has-success": form["type"+$index].$valid, "is-empty": !form["type"+$index].$viewValue }')
+          label(for='type{{$index}}') Enter a type
+          input(type='text', name='type{{$index}}', ng-model='field.type', required='', ng-focus='form["type"+$index].hasFocus=true', ng-blur='form["type"+$index].hasFocus=false')
+        button.red(ng-click="vm.remove($index)") Remove
+      button(ng-disabled="form.$invalid" ng-click="vm.request()") Request
+      button(ng-click="vm.fixtures()") Example
+
+    pre(ng-if="reddit.data.length") {{ reddit.data }}
+  script(src='https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.11.1/lodash.min.js')
+  script(src='https://ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular.min.js')
+  script(src='/javascripts/app.js')

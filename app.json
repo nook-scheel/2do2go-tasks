@@ -1,0 +1,16 @@
+{
+  "name": "2do2go-task",
+  "repository": "https://github.com/nooks/2do2go-task",
+  "scripts": {},
+  "env": {
+    "NODE_ENV": "production"
+  },
+  "image": "heroku/nodejs",
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "Free"
+    }
+  }
+}
+
