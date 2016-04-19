@@ -1,0 +1,4 @@
+--globals match
+--reporter spec
+--ui bdd
+--timeout 6000
